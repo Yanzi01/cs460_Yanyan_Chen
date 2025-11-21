@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CS460 – Three.js Boilerplate</title>
+
+    <style>
+      html, body { 
+        background-color: #000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@latest/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+      }
+    }
+    </script>
+
+    <script type="module">
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+      import { AnaglyphEffect } from 'three/addons/effects/AnaglyphEffect.js';
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+      var renderer, effect, controls, scene, camera, loader;
+
+      window.onload = function() {
+        // setup the scene
+        scene = new THREE.Scene();
+
+        // setup the camera
+        var fov = 60;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 0.1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set(0, 10, 0);
+
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add(ambientLight);
+
+        var light = new THREE.DirectionalLight(0xffffff, 1.0);
+        light.position.set(10, 20, 10);
+        scene.add(light);
+
+        // interaction
+        controls = new OrbitControls(camera, renderer.domElement);
+
+        // anaglyph effect
+        effect = new AnaglyphEffect(renderer);
+        effect.setSize(window.innerWidth, window.innerHeight);
+
+        // GLTF loader
+        loader = new GLTFLoader();
+        loader.load('poly.glb', function(gltf) {
+          scene.add(gltf.scene);
+
+          var poly = gltf.scenes[0].children[0];
+          poly.scale.x = 10;
+          poly.scale.y = 10;
+          poly.scale.z = 10;
+        });
+
+        animate();
+      };
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        effect.render(scene, camera);
+      }
+    </script>
+  </head>
+  <body></body>
+</html>
