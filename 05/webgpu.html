@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CS460 – WebGPU + Babylon.js</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background: black;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+
+  <!-- Babylon.js Core -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+
+  <!-- Babylon.js GLTF Loader -->
+  <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
+
+</head>
+
+<body>
+  <canvas id="renderCanvas"></canvas>
+
+  <script type="module">
+    const canvas = document.getElementById("renderCanvas");
+
+    // Create WebGPU engine
+    let engine = new BABYLON.WebGPUEngine(canvas, { antialiasing: true });
+    await engine.initAsync();
+
+    // Create scene
+    const scene = new BABYLON.Scene(engine);
+
+    await BABYLON.SceneLoader.AppendAsync("", "jellycat_cup.glb", scene);
+
+    // Create default camera + light
+    scene.createDefaultCameraOrLight(true, true, true);
+
+    // Attach camera controls
+    scene.activeCamera.attachControl(canvas, true);
+
+    // Render loop
+    engine.runRenderLoop(() => {
+      scene.render();
+    });
+
+    // Resize handler
+    addEventListener("resize", () => {
+      engine.resize();
+    });
+  </script>
+
+</body>
+</html>
