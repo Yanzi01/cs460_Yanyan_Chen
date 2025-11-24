@@ -8,6 +8,22 @@
         height: 100%;
         overflow: hidden !important;  
       }
+
+      /* INSTRUCTION BOX */
+      #instructions {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 9999;
+        color: white;
+        background: rgba(0, 0, 0, 0.55);
+        padding: 12px 16px;
+        font-family: Arial, sans-serif;
+        font-size: 18px;
+        border-radius: 6px;
+        line-height: 1.45em;
+        max-width: 300px;
+      }
     </style>
     
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -27,7 +43,6 @@
  
       var renderer, controls, scene, camera;
 
-      
       var toruses = [];            
       var LASTOBJECT = null;      
       var isPlacing = false;       
@@ -38,10 +53,9 @@
       var GRASSGREEN = 0x7CFC00;  
  
       window.onload = function() {
-        // Three.js code goes here
+        // Three.js scene setup
         scene = new THREE.Scene();
  
-        // setup the camera
         var fov = 75;
         var ratio = window.innerWidth / window.innerHeight;
         var zNear = 1;
@@ -49,53 +63,43 @@
         camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
         camera.position.set(0, 0, 100);
  
-        // create renderer and setup the canvas
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( renderer.domElement );
  
-        // setup lights 
+        // lighting
         var ambientLight = new THREE.AmbientLight();
         scene.add( ambientLight );
- 
         var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
         light.position.set( 10, 100, 10 );
         scene.add( light );
 
-        //
-        // The invisible plane (from starter)
-        //
+        // invisible plane
         var geometry = new THREE.PlaneGeometry( 10000, 10000 );
         var material = new THREE.MeshBasicMaterial({ visible: false });
         var invisible_plane = new THREE.Mesh( geometry, material );
         scene.add( invisible_plane );
-        //
-        //
-        //
 
-        // interaction
+        // controls
         controls = new OrbitControls( camera, renderer.domElement );
 
-
-    
+        // interactions
         renderer.domElement.onmousedown = function( e ){
-          if (!e.shiftKey || e.button !== 0) return;  // Shift + left button
+          if (!e.shiftKey || e.button !== 0) return;
 
           controls.enabled = false;
           isPlacing = true;
 
           var pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
-
-          var vp_coords = new THREE.Vector2( 
-            ( pixel_coords.x / window.innerWidth ) * 2 - 1, // X
-            -( pixel_coords.y / window.innerHeight ) * 2 + 1); // Y
-          
+          var vp_coords = new THREE.Vector2(
+            ( pixel_coords.x / window.innerWidth ) * 2 - 1,
+            -( pixel_coords.y / window.innerHeight ) * 2 + 1
+          );
           var vp_coords_3d_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0 );
 
           var raycaster = new THREE.Raycaster();
           raycaster.setFromCamera(vp_coords_3d_near, camera);
           var intersects = raycaster.intersectObject(invisible_plane);
-          
 
           const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
           const material = new THREE.MeshStandardMaterial({ color: HOTPINK, transparent: true, opacity: 1.0 });
@@ -105,11 +109,10 @@
           const p = intersects[0].point;
           torusKnot.position.set(p.x, p.y, p.z);
 
-
           torusKnot.scale.set(1,1,1);
           torusKnot.userData = {
             placing: true,
-            lastScaleSign: 1,     
+            lastScaleSign: 1,
             colorIsPink: true
           };
 
@@ -121,9 +124,7 @@
           if (!isPlacing || !LASTOBJECT) return;
           if (!LASTOBJECT.userData.placing) return;
 
-          // scale based on vertical movement
-          
-          var delta = -e.movementY;    // up → bigger
+          var delta = -e.movementY;
           var s = LASTOBJECT.scale.x + delta;
 
           var newSign = Math.sign(s);
@@ -143,7 +144,7 @@
         };
 
         window.onkeypress = function(e){
-          if (e.key == 'f' ) {
+          if (e.key == 'f') {
             FLICKERING = !FLICKERING;
             if (!FLICKERING) {
               for (var i = 0; i < toruses.length; i++){
@@ -152,6 +153,7 @@
               }
             }
           }
+
           if (e.key == 'w') {
             for (var i = 0 ; i < toruses.length; i++){
               toruses[i].material.wireframe = !toruses[i].material.wireframe;
@@ -179,5 +181,18 @@
       };
     </script>
   </head>
-  <body></body>
+
+  <body>
+    <!-- TOP-LEFT INSTRUCTION BOX -->
+    <div id="instructions">
+      <b>Controls:</b><br>
+      Shift + Left-Click to place a torus<br>
+      Drag mouse up/down to scale a torus<br>
+      Color flips when scale crosses zero<br>
+      <br>
+      Press <b>F</b> to toggle flicker<br>
+      Press <b>W</b> to toggle wireframe<br>
+      Use mouse to orbit camera<br>
+    </div>
+  </body>
 </html>
