@@ -43,7 +43,7 @@
       var light, ambientLight;
       var stats;
 
-      // global helper for scene settings and UI callbacks
+      // SETTINGS and HELPER for TWEAKPANE
       window.SCENE = {
         anaglyph: false,
 
@@ -102,7 +102,7 @@
         light.position.set(10, 40, 50);
         scene.add(light);
 
-        // orbit controls
+        // controls
         controls = new OrbitControls(camera, renderer.domElement);
 
         // anaglyph effect
@@ -113,14 +113,14 @@
         stats = new Stats();
         document.body.appendChild(stats.domElement);
 
-        // Tweakpane root and Scene panel
+        // tweakpane
         const pane = new Pane();
         const sceneui = pane.addFolder({ title: 'Scene' });
 
         // anaglyph toggle
         sceneui.addBinding(window.SCENE, 'anaglyph');
 
-        // directional light controls
+        // light position / intensity
         sceneui.addBinding(light.position, 'x', {
           min: -100,
           max: 100,
@@ -147,18 +147,20 @@
           label: 'AmbientLight Color'
         });
 
-        // load PolyCam mesh
+        //
+        // PolyCam mesh
+        //
         const loader1 = new GLTFLoader();
         loader1.load('orginal_jellycat_cup.glb', function (gltf) {
           const poly = gltf.scenes[0].children[0];
           poly.scale.set(10, 10, 10);
-          poly.quaternion.set(1, 0, 0, 0);
+          // identity quaternion (x, y, z, w)
+          poly.quaternion.set(0, 0, 0, 1);
           poly.translateX(5);
           scene.add(poly);
 
           window.SCENE.poly = poly;
 
-          // PolyCam Mesh panel
           const polyUI = pane.addFolder({ title: 'PolyCam Mesh' });
           polyUI.addBinding(poly.material, 'wireframe', { label: 'wireframe' });
           polyUI.addButton({ title: 'rotate!' }).on('click', () => {
@@ -166,23 +168,24 @@
           });
         });
 
-        // load Blender mesh
+        //
+        // Blender mesh
+        //
         const loader2 = new GLTFLoader();
         loader2.load('jellycat_cup.glb', function (gltf) {
           const blender = gltf.scenes[0].children[0];
           blender.scale.set(10, 10, 10);
-          blender.quaternion.set(1, 0, 0, 0);
+          blender.quaternion.set(0, 0, 0, 1);
           scene.add(blender);
 
           window.SCENE.blender = blender;
 
-          // VertexNormalsHelper for Blender mesh
+          // normals helper
           const helper = new VertexNormalsHelper(blender, 0.6, 0x0000ff);
           helper.visible = false;
           scene.add(helper);
           window.SCENE.blender_helper = helper;
 
-          // Blender Mesh panel
           const blenderUI = pane.addFolder({ title: 'Blender Mesh' });
           blenderUI.addBinding(helper, 'visible', {
             label: 'Show normals!'
@@ -235,7 +238,7 @@
           renderer.render(scene, camera);
         }
 
-        // update stats.js widget
+        // stats.js widget update
         stats.update();
       }
     </script>
