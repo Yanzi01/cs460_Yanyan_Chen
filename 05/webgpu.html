@@ -1,63 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>CS460 – WebGPU + Babylon.js</title>
+  <meta charset="utf-8">
+  <title>Babylon.js WebGPU + PBR</title>
 
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
-      height: 100%;
-      background: black;
-    }
-    canvas {
       width: 100%;
       height: 100%;
-      display: block;
+      overflow: hidden;
+      background: #000;
     }
+    canvas { width: 100%; height: 100%; display: block; }
   </style>
 
-  <!-- Babylon.js Core -->
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
-
-  <!-- Babylon.js GLTF Loader -->
   <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
-
 </head>
 
 <body>
-  <canvas id="renderCanvas"></canvas>
+<canvas id="renderCanvas"></canvas>
 
-  <script type="module">
-    const canvas = document.getElementById("renderCanvas");
+<script type="module">
 
-    // Create WebGPU engine
-    let engine = new BABYLON.WebGPUEngine(canvas, { antialiasing: true });
-    await engine.initAsync();
+  const canvas = document.getElementById("renderCanvas");
 
-    // Create scene
-    const scene = new BABYLON.Scene(engine);
+  let engine = new BABYLON.WebGPUEngine(canvas, { antialiasing: true });
+  await engine.initAsync();
 
-    await BABYLON.SceneLoader.AppendAsync("", "jellycat_cup.glb", scene);
+  const scene = new BABYLON.Scene(engine);
 
-    // Create default camera + light
-    scene.createDefaultCameraOrLight(true, true, true);
+  await BABYLON.SceneLoader.AppendAsync('', 'Jellycat_cup_Tinkercad.glb', scene);
 
-    // Attach camera controls
-    scene.activeCamera.attachControl(canvas, true);
+  const mesh = scene.meshes[1]; 
+  mesh.position = new BABYLON.Vector3(0,0,0);
 
-    // Render loop
-    engine.runRenderLoop(() => {
-      scene.render();
-    });
+  const pbr = new BABYLON.PBRMaterial("pbr", scene);
 
-    // Resize handler
-    addEventListener("resize", () => {
-      engine.resize();
-    });
-  </script>
+  pbr.metallic = 1.0;
+  pbr.roughness = 0.2;
+  pbr.subSurface.isRefractionEnabled = false;
+  pbr.clearCoat.isEnabled = true;
+  pbr.clearCoat.intensity = 0.8;
+  pbr.emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.4);
+
+  mesh.material = pbr;
+
+  scene.createDefaultCameraOrLight(true, true, true);
+
+  scene.activeCamera.alpha += 1.2;
+  scene.activeCamera.beta = 1.2;
+
+  scene.activeCamera.attachControl(canvas, true);
+
+  engine.runRenderLoop(() => scene.render());
+
+  addEventListener("resize", () => engine.resize());
+
+</script>
 
 </body>
 </html>
