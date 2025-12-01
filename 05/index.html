@@ -88,6 +88,8 @@
           10000
         );
         camera.position.set(0, 10, 0);
+     
+        
 
         // renderer
         renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -153,10 +155,10 @@
         const loader1 = new GLTFLoader();
         loader1.load('orginal_jellycat_cup.glb', function (gltf) {
           const poly = gltf.scenes[0].children[0];
-          poly.scale.set(10, 10, 10);
+          poly.scale.set(40, 40, 40);
           // identity quaternion (x, y, z, w)
           poly.quaternion.set(0, 0, 0, 1);
-          poly.translateX(5);
+          poly.translateX(-2);
           scene.add(poly);
 
           window.SCENE.poly = poly;
@@ -174,8 +176,9 @@
         const loader2 = new GLTFLoader();
         loader2.load('jellycat_cup.glb', function (gltf) {
           const blender = gltf.scenes[0].children[0];
-          blender.scale.set(10, 10, 10);
+          blender.scale.set(40, 40, 40);
           blender.quaternion.set(0, 0, 0, 1);
+          blender.translateX(2);
           scene.add(blender);
 
           window.SCENE.blender = blender;
